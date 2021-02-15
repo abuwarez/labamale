@@ -71,11 +71,13 @@ class CoordCart {
 	}
 }
 
-function print_brate() {
+function print_brate(xx) {
 	var coor = new CoordCart(100, 700, "cvs");
 	var poz_oriz = new Rect(3, 25, 125, 20);
 	var poz_vert = new Rect(20, 5, 20, 125);
 	var montant = new Rect(0, 0, 45, 150);
+	
+	var x = xx.split(",");
 	
 	coor.clear();
 	
@@ -85,9 +87,7 @@ function print_brate() {
 	coor.rect(poz_vert);
 	coor.col("#000000")
 	coor.rect(montant);
-	
-	var x = document.getElementById("brate").value.split(",")
-	
+		
 	h1 = new Pct(x[0], x[1]);
 	p1 = new Pct(x[2], x[3]);
 	v1 = new Pct(x[4], x[5]);
@@ -96,18 +96,73 @@ function print_brate() {
 	p2 = new Pct(x[8], x[9]);
 	v2 = new Pct(x[10], x[11]);
 	
-	coor.col("#FF0000")
-	coor.line(h1, p1)
-	coor.line(h2, p2)
+	coor.col("#FF0000");
+	coor.line(h1, p1);
+	coor.line(h2, p2);
 
-	coor.col("#0000FF")
-	coor.line(p1, v1)
-	coor.line(p2, v2)
+	coor.col("#0000FF");
+	coor.line(p1, v1);
+	coor.line(p2, v2);
+}
+
+function onFileEvt(evt) {
+	var r = new FileReader();
+	r.onload = function (e) {
+
+		var index = 0;
+		var sel = document.getElementById("opts");
+		e.target.result.match(/[^\r\n]+/g).forEach(function(item) {
+			var opt = document.createElement("option");
+			opt.text = item;
+			opt.value = item;
+			sel.add(opt);
+		});
+	}
+	
+	r.readAsText(evt.target.files[0]);
+}
+
+function din_input() {
+	var x = document.getElementById('brate').value;
+	print_brate(x);
+}
+
+function din_select() {
+	var sel = document.getElementById('opts');
+	print_brate(sel.value);
 }
 
 </script>
 
+<style>
+.leftside {
+  float: left;
+  width: 70%;
+}
 
+.rightside {
+  float: right;
+  width: 30%;
+}
+
+.split:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+</style>
 <input type="text" name="brate" id="brate" value="" />
-<button onclick="print_brate()">Baga</button>
-<canvas name="cvs" id="cvs" width=1500 height = 1500/>
+<button onclick="din_input()">Baga</button>
+<input type="file" id="file" multiple="false" />
+<div class="split">
+<div class="leftside">
+<canvas name="cvs" id="cvs" width=1000 height=700/>
+</div>
+<div class="rightside">
+<select name="opts" id="opts" size=40 width=300 height=700 onchange="din_select()"></select>
+</div>
+</div>
+
+<script>
+document.getElementById("file").addEventListener('change', onFileEvt, false);
+</script>
