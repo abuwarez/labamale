@@ -1,0 +1,113 @@
+
+<script>
+
+class Pct {
+	constructor(x, y) {
+		this.x = x;
+		this.y = y;
+	}
+}
+
+class Rect {
+	constructor(x, y, w, h) {
+		this.x = x;
+		this.y = y;
+		this.w = w;
+		this.h = h;
+	}
+}
+
+class CoordCart {
+	constructor(deltaX, deltaY, cvs_name) {
+		this.deltaX = deltaX;
+		this.deltaY = deltaY;
+		
+		this.mult = 10;
+		
+		this.cvs = document.getElementById(cvs_name);
+		this.ctx = this.cvs.getContext("2d");
+		/*
+		this.ctx.beginPath();
+		this.ctx.moveTo(10, 10);
+		this.ctx.lineTo(100, 100);
+		this.ctx.stroke();
+		*/
+	}
+	
+	line(a, b) {
+		this.ctx.beginPath();
+		var t = this.transform(a);
+		this.ctx.moveTo(t.x, t.y);
+		t = this.transform(b);
+		this.ctx.lineTo(t.x, t.y);
+		this.ctx.stroke();
+	}
+	
+	rect(r) {
+		this.ctx.beginPath();
+		var p = this.transform(new Pct(r.x, r.y));
+		this.ctx.moveTo(p.x, p.y);
+		p = this.transform(new Pct(r.x + r.w, r.y));
+		this.ctx.lineTo(p.x, p.y);
+		p = this.transform(new Pct(r.x + r.w, r.y + r.h));
+		this.ctx.lineTo(p.x, p.y);
+		p = this.transform(new Pct(r.x, r.y + r.h));
+		this.ctx.lineTo(p.x, p.y);
+		p = this.transform(new Pct(r.x, r.y));
+		this.ctx.lineTo(p.x, p.y);
+		this.ctx.stroke();
+	}
+	
+	transform(p) {
+		return new Pct(this.deltaX + this.mult * p.x, this.deltaY - this.mult * p.y);
+	}
+	
+	clear() {
+		this.ctx.clearRect(0, 0, 1500, 1500)
+	}
+	
+	col(c) {
+		this.ctx.strokeStyle = c
+	}
+}
+
+function print_brate() {
+	var coor = new CoordCart(100, 700, "cvs");
+	var poz_oriz = new Rect(3, 25, 125, 20);
+	var poz_vert = new Rect(20, 5, 20, 125);
+	var montant = new Rect(0, 0, 45, 150);
+	
+	coor.clear();
+	
+	coor.col("#FF0000")
+	coor.rect(poz_oriz);
+	coor.col("#0000FF")
+	coor.rect(poz_vert);
+	coor.col("#000000")
+	coor.rect(montant);
+	
+	var x = document.getElementById("brate").value.split(",")
+	
+	h1 = new Pct(x[0], x[1]);
+	p1 = new Pct(x[2], x[3]);
+	v1 = new Pct(x[4], x[5]);
+	
+	h2 = new Pct(x[6], x[7]);
+	p2 = new Pct(x[8], x[9]);
+	v2 = new Pct(x[10], x[11]);
+	
+	coor.col("#FF0000")
+	coor.line(h1, p1)
+	coor.line(h2, p2)
+
+	coor.col("#0000FF")
+	coor.line(p1, v1)
+	coor.line(p2, v2)
+}
+
+</script>
+
+
+<input type="text" name="brate" id="brate" value="" />
+<button onclick="print_brate()">Baga</button>
+<canvas name="cvs" id="cvs" width=1500 height = 1500/>
