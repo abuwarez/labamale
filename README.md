@@ -1,7 +1,7 @@
 # labamale (an anagram for the romanian `balamale`)
 Calculating dual link positions for wall mounted beds
 
-## Finding all solutions for dual linked wall bed mechanism
+## Finding all solutions for dual-linked wall-bed mechanism
 
 `labamale.py` produces all possible combinations of a dual link mechanism given the sizes of the bed frame, bed mount and the bed frame's vertical and horizontal positions. I takes no arguments, all tuning needs to be performed inside the script:
 
@@ -38,6 +38,10 @@ Each line contains 6 coordinates, as follows:
 - (p2_x, p2_y) coordinates of mech's beam 2 pivot on the bed mount
 - (v2_x, v2_y) coordinates of mech's beam 2 on the bed frame when in vertical position
 
-## Solution visualization
+### Solution visualization
 
 `viz.html` uses JavaScript to draw the bed mechanism on a HTML5 canvas. Enter one line from `labamale`'s output inside the editbox and press `Baga` to get a display for that specific link configuration 
+
+## Pivot and strut mount position calculator for wall-beds
+
+`viz_struts.html` takes the pivot position in regards to the bed pillar and the distance between the pivot, the lower strut mount in regards to the mattress and the lenght of the extended strut and computes the height of the upper strut mount to the bed pillar

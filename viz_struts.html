@@ -1,0 +1,204 @@
+<script>
+
+class Pct {
+	constructor(x, y) {
+		this.x = x;
+		this.y = y;
+	}
+}
+
+class Rect {
+	constructor(x, y, w, h) {
+		this.x = x;
+		this.y = y;
+		this.w = w;
+		this.h = h;
+	}
+}
+
+class CoordCart {
+	constructor(deltaX, deltaY, cvs_name) {
+		this.deltaX = deltaX;
+		this.deltaY = deltaY;
+		
+		this.mult = 10;
+		
+		this.cvs = document.getElementById(cvs_name);
+		this.ctx = this.cvs.getContext("2d");
+		/*
+		this.ctx.beginPath();
+		this.ctx.moveTo(10, 10);
+		this.ctx.lineTo(100, 100);
+		this.ctx.stroke();
+		*/
+	}
+	
+	line(a, b) {
+		this.ctx.beginPath();
+		var t = this.transform(a);
+		this.ctx.moveTo(t.x, t.y);
+		t = this.transform(b);
+		this.ctx.lineTo(t.x, t.y);
+		this.ctx.stroke();
+	}
+	
+	rect(r) {
+		this.ctx.beginPath();
+		var p = this.transform(new Pct(r.x, r.y));
+		this.ctx.moveTo(p.x, p.y);
+		p = this.transform(new Pct(r.x + r.w, r.y));
+		this.ctx.lineTo(p.x, p.y);
+		p = this.transform(new Pct(r.x + r.w, r.y + r.h));
+		this.ctx.lineTo(p.x, p.y);
+		p = this.transform(new Pct(r.x, r.y + r.h));
+		this.ctx.lineTo(p.x, p.y);
+		p = this.transform(new Pct(r.x, r.y));
+		this.ctx.lineTo(p.x, p.y);
+		this.ctx.stroke();
+	}
+	
+	transform(p) {
+		return new Pct(this.deltaX + this.mult * p.x, this.deltaY - this.mult * p.y);
+	}
+	
+	clear() {
+		this.ctx.clearRect(0, 0, 1500, 1500)
+	}
+	
+	col(c) {
+		this.ctx.strokeStyle = c
+	}
+}
+
+function print_system(pos_pivot_montant, pos_pivot_pat, dist_piv_strut_lower, strut_max_len) {
+	var h_lat_pat = 25;
+	var coor = new CoordCart(100, 700, "cvs");
+	var montant = new Rect(0, 0, 40, 150);
+
+	var coor_ppm = pos_pivot_montant.split(",");
+	var coor_ppp = pos_pivot_pat.split(",");
+
+	console.log("coor_ppm " + coor_ppm);
+	console.log("coor_ppp " + coor_ppp);
+
+	coor.rect(montant);
+	coor.rect(new Rect(coor_ppm[0] - 2, coor_ppm[1] - 2, 4, 4));
+
+
+	var pat_vert = new Rect(
+		eval(coor_ppm[0]) + eval(coor_ppp[1]) - eval(h_lat_pat),
+		eval(coor_ppm[1]) - eval(coor_ppp[0]),
+		h_lat_pat,
+		150);
+	console.log(pat_vert);
+
+	coor.col("#FF0000");
+	coor.rect(pat_vert);
+
+	var pat_horiz = new Rect(
+		eval(coor_ppm[0]) - eval(coor_ppp[0]),
+		eval(coor_ppm[1]) - eval(coor_ppp[1]),
+		150,
+		h_lat_pat);
+
+	console.log(pat_horiz);
+
+	coor.col("#0000FF");
+	coor.rect(pat_horiz);
+
+	var dst = parseFloat(dist_piv_strut_lower);
+	var len = parseFloat(strut_max_len);
+
+	var delta = 4*dst*dst - 4 * (2 * dst * dst - len * len);
+	var x = (Math.sqrt(delta) - 2 * dst) / 2;
+
+	var len_test = (x + dst)*(x + dst) + dst * dst;
+
+	console.log("X: " + x + " len_sq: " + len_test + " len; " + Math.sqrt(len_test));
+
+	coor.col("#0000FF");
+	coor.line(new Pct(
+		eval(coor_ppm[0]),
+		eval(coor_ppm[1]) - eval(dst),
+	), new Pct(
+		eval(coor_ppm[0]) - dst,
+		eval(coor_ppm[1]) + x,
+	));
+
+	coor.col("#FF0000");
+	coor.line(new Pct(
+		eval(coor_ppm[0]) - dst,
+		eval(coor_ppm[1]),
+	), new Pct(
+		eval(coor_ppm[0]) - dst,
+		eval(coor_ppm[1]) + x,
+	));
+}
+
+function onFileEvt(evt) {
+	var r = new FileReader();
+	r.onload = function (e) {
+
+		var index = 0;
+		var sel = document.getElementById("opts");
+		e.target.result.match(/[^\r\n]+/g).forEach(function(item) {
+			var opt = document.createElement("option");
+			opt.text = item;
+			opt.value = item;
+			sel.add(opt);
+		});
+	}
+	
+	r.readAsText(evt.target.files[0]);
+}
+
+function din_input() {
+	var pos_pivot_mon = document.getElementById('i_ppm').value;
+	var pos_pivot_pat = document.getElementById('i_ppp').value;
+	var dst_piv_strut_low = document.getElementById('i_dps').value;
+	var strut_len = document.getElementById('i_lens').value;
+	print_system(pos_pivot_mon, pos_pivot_pat, dst_piv_strut_low, strut_len);
+}
+
+function din_select() {
+	var sel = document.getElementById('opts');
+	print_brate(sel.value);
+}
+
+</script>
+
+<style>
+.leftside {
+  float: left;
+  width: 70%;
+}
+
+.rightside {
+  float: right;
+  width: 30%;
+}
+
+.split:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+</style>
+Pos Pivot Montant: <input type="text" name="i_ppm" id="i_ppm" value="37,43" /> <br>
+Pos Pivot Pat: <input type="text" name="i_ppp" id="i_ppp" value="32,3" /> <br>
+Distanta Pivot Strut Low: <input type="text" name="i_dps" id="i_dps" value="12" /> <br>
+Lungime strut: <input type="text" name="i_lens" id="i_lens" value="36" /> <br>
+<button onclick="din_input()">Baga</button>
+<input type="file" id="file" multiple="false" />
+<div class="split">
+<div class="leftside">
+<canvas name="cvs" id="cvs" width=1000 height=700/>
+</div>
+<div class="rightside">
+<select name="opts" id="opts" size=40 width=300 height=700 onchange="din_select()"></select>
+</div>
+</div>
+
+<script>
+document.getElementById("file").addEventListener('change', onFileEvt, false);
+</script>
