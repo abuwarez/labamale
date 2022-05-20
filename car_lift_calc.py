@@ -100,9 +100,6 @@ class GLine:
 
 
 class ClearanceCalc:
-    center_x = -140
-    center_y = 0
-    scale = 3
 
     def __init__(self, amp: float = 285.1, rh:float = 13.6, dh: float = 20.0, rl: float = 495, mc: float = 2):
         self.amp = amp
@@ -148,25 +145,56 @@ class ClearanceCalc:
         print("  unghi rampa: {:.2f}".format(self.min_cl_point.get_crt_angle() * 180 / math.pi))
         print("  lungime proiectie  rampa: {:.2f}".format(self.min_cl_point.x))
 
-#        print(self.rh_line.intersectPoint(self.lift_line))
-#        print("rh_f: " + str(self.rh_vec_front))
-#        print("rh_r: " + str(self.rh_vec_rear))
-#        print("r: " + str(self.vec_rear))
-#        print("cl_f: " + str(self.cl_vec_front))
-#        print("cl_r: " + str(self.cl_vec_rear))
-#        print("min_cl: " + str(self.min_cl_point))
-#
+    def draw(self):
+        c = Canvas()
+
+        c.set_color('blue')
+
+        c.draw_line(GVec(0, 0), self.rh_vec_front)
+        c.draw_line(self.rh_vec_front, self.rh_vec_rear)
+        c.draw_line(self.vec_rear, self.rh_vec_rear)
+
+        c.set_color('red')
+
+        c.draw_line(self.rh_lift_intersect, self.lift_end)
+        
+        c.draw_grid([self.rh_lift_intersect.x], [self.rh_lift_intersect.y])
+
+        c.center_y = -100
+        c.set_color('blue')
+
+        c.draw_line(GVec(0, 0), self.rh_vec_front)
+        c.draw_line(self.rh_vec_front, self.rh_vec_rear)
+        c.draw_line(self.vec_rear, self.rh_vec_rear)
+        c.set_color('red')
+        c.draw_line(self.min_cl_point, self.lift_end)
+        c.set_color('green')
+        c.draw_line(self.cl_vec_rear, self.cl_vec_front)
+        c.set_color('red')
+        c.draw_line(self.min_cl_point, GVec(0,0))
+        c.draw_grid([self.min_cl_point.x], [self.min_cl_point.y])
+
+
+class Canvas:
+    def __init__(self):
+        self.center_x = -140
+        self.center_y = 0
+        self.scale = 3
+
+    def set_color(self, c):
+        t.color(c)
+
     def draw_line(self, v1, v2):
         t.penup()
 
-        t.setpos(ClearanceCalc.scale * (v1.x + ClearanceCalc.center_x), ClearanceCalc.scale * (v1.y + ClearanceCalc.center_y))
+        t.setpos(self.scale * (v1.x + self.center_x), self.scale * (v1.y + self.center_y))
         t.pendown()
 
-        t.setpos(ClearanceCalc.scale * (v2.x + ClearanceCalc.center_x), ClearanceCalc.scale * (v2.y + ClearanceCalc.center_y))
+        t.setpos(self.scale * (v2.x + self.center_x), self.scale * (v2.y + self.center_y))
         t.penup()
 
     def set_pos(self, x, y):
-        t.setpos(ClearanceCalc.scale * (x + ClearanceCalc.center_x), ClearanceCalc.scale * (y + ClearanceCalc.center_y))
+        t.setpos(self.scale * (x + self.center_x), self.scale * (y + self.center_y))
 
     def draw_h_grid_line(self, x, label):
         gl_len = 15
@@ -199,31 +227,6 @@ class ClearanceCalc:
         self.draw_v_grid_line(0, "0")
         for p in ypoints:
             self.draw_v_grid_line(p, "{:.1f}".format(p))
-
-    def draw(self):
-        t.color('blue', 'yellow')
-
-        self.draw_line(GVec(0, 0), self.rh_vec_front)
-        self.draw_line(self.rh_vec_front, self.rh_vec_rear)
-        self.draw_line(self.vec_rear, self.rh_vec_rear)
-        t.color('red', 'yellow')
-        self.draw_line(self.rh_lift_intersect, self.lift_end)
-        
-        self.draw_grid([self.rh_lift_intersect.x], [self.rh_lift_intersect.y])
-
-        ClearanceCalc.center_y = -100
-        t.color('blue', 'yellow')
-
-        self.draw_line(GVec(0, 0), self.rh_vec_front)
-        self.draw_line(self.rh_vec_front, self.rh_vec_rear)
-        self.draw_line(self.vec_rear, self.rh_vec_rear)
-        t.color('red', 'yellow')
-        self.draw_line(self.min_cl_point, self.lift_end)
-        t.color('green', 'yellow')
-        self.draw_line(self.cl_vec_rear, self.cl_vec_front)
-        t.color('red', 'yellow')
-        self.draw_line(self.min_cl_point, GVec(0,0))
-        self.draw_grid([self.min_cl_point.x], [self.min_cl_point.y])
 
 
 def test_rot():
@@ -264,8 +267,6 @@ def test_line():
     print(l.hasPoint(2, 2.1))
 
     print(l.distToPoint(0, 1))
-
-
 
     l1 = GLine.fromPoints(0, 0, 1, 1)
     l2 = GLine.fromPoints(0, 1, 1, 0)
